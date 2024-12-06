@@ -1,7 +1,11 @@
 use rustls::crypto::WebPkiSupportedAlgorithms;
 use rustls::SignatureScheme;
 
-use self::ecdsa::{ECDSA_P256_SHA256, ECDSA_P256_SHA384, ECDSA_P384_SHA256, ECDSA_P384_SHA384};
+#[cfg(feature = "p256")]
+use self::ecdsa::{ECDSA_P256_SHA256, ECDSA_P256_SHA384};
+#[cfg(feature = "p384")]
+use self::ecdsa::{ECDSA_P384_SHA256, ECDSA_P384_SHA384};
+#[cfg(feature = "x25519")]
 use self::eddsa::ED25519;
 use self::rsa::{
     RSA_PKCS1_SHA256, RSA_PKCS1_SHA384, RSA_PKCS1_SHA512, RSA_PSS_SHA256, RSA_PSS_SHA384,
@@ -10,10 +14,15 @@ use self::rsa::{
 
 pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
     all: &[
+        #[cfg(feature = "p256")]
         ECDSA_P256_SHA256,
+        #[cfg(feature = "p256")]
         ECDSA_P256_SHA384,
+        #[cfg(feature = "p384")]
         ECDSA_P384_SHA256,
+        #[cfg(feature = "p384")]
         ECDSA_P384_SHA384,
+        #[cfg(feature = "x25519")]
         ED25519,
         RSA_PKCS1_SHA256,
         RSA_PKCS1_SHA384,
@@ -23,14 +32,25 @@ pub static ALGORITHMS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgorithms {
         RSA_PSS_SHA512,
     ],
     mapping: &[
+        #[cfg(feature = "p384")]
         (
             SignatureScheme::ECDSA_NISTP384_SHA384,
-            &[ECDSA_P384_SHA384, ECDSA_P256_SHA384],
+            &[
+                ECDSA_P384_SHA384,
+                #[cfg(feature = "p256")]
+                ECDSA_P256_SHA384,
+            ],
         ),
+        #[cfg(feature = "p256")]
         (
             SignatureScheme::ECDSA_NISTP256_SHA256,
-            &[ECDSA_P256_SHA256, ECDSA_P384_SHA256],
+            &[
+                ECDSA_P256_SHA256,
+                #[cfg(feature = "p384")]
+                ECDSA_P384_SHA256,
+            ],
         ),
+        #[cfg(feature = "x25519")]
         (SignatureScheme::ED25519, &[ED25519]),
         (SignatureScheme::RSA_PKCS1_SHA256, &[RSA_PKCS1_SHA256]),
         (SignatureScheme::RSA_PKCS1_SHA384, &[RSA_PKCS1_SHA384]),

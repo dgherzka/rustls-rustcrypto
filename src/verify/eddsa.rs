@@ -1,3 +1,5 @@
+#![cfg(feature = "x25519")]
+
 use pki_types::{AlgorithmIdentifier, InvalidSignature, SignatureVerificationAlgorithm};
 use signature::Verifier;
 use webpki::alg_id;

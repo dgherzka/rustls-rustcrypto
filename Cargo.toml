@@ -25,10 +25,10 @@ crypto-common = { version = "0.1.6", default-features = false }
 der = { version = "0.7.9", default-features = false }
 digest = { version = "0.10.7", default-features = false }
 ecdsa = { version = "0.16.8", default-features = false, features = ["alloc"] }
-ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"] }
+ed25519-dalek = { version = "2", default-features = false, features = ["pkcs8"], optional = true }
 hmac = { version = "0.12.1", default-features = false }
-p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
-p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"] }
+p256 = { version = "0.13.2", default-features = false, features = ["pem", "ecdsa", "ecdh"], optional = true }
+p384 = { version = "0.13.0", default-features = false, features = ["pem", "ecdsa", "ecdh"], optional = true }
 paste = { version = "1.0.15", default-features = false }
 pkcs8 = { version = "0.10.2", default-features = false, features = ["pem", "pkcs5"] }
 pki-types = { package = "rustls-pki-types", version = "1.0.1", default-features = false }
@@ -45,9 +45,12 @@ x25519-dalek = { version = "2", default-features = false }
 getrandom = { version = "0.2", features = ["custom"] } # workaround to build on no_std targets
 
 [features]
-default = ["std", "tls12", "zeroize"]
+default = ["std", "tls12", "zeroize", "x25519", "p256", "p384"]
 logging = ["rustls/logging"]
 tls12 = ["rustls/tls12"]
+p256 = ["dep:p256"]
+p384 = ["dep:p384"]
+x25519 = ["dep:ed25519-dalek"]
 
 # Only enable feature in upstream if there is an overall effect e.g. aead/alloc in-place
 # zeroize is another typical that can be turned off

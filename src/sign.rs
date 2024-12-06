@@ -2,7 +2,11 @@
 use alloc::{sync::Arc, vec::Vec};
 use core::marker::PhantomData;
 
-use self::ecdsa::{EcdsaSigningKeyP256, EcdsaSigningKeyP384};
+#[cfg(feature = "p256")]
+use self::ecdsa::EcdsaSigningKeyP256;
+#[cfg(feature = "p384")]
+use self::ecdsa::EcdsaSigningKeyP384;
+#[cfg(feature = "x25519")]
 use self::eddsa::Ed25519SigningKey;
 use self::rsa::RsaSigningKey;
 
@@ -84,10 +88,23 @@ pub fn any_supported_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
-pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
-    let p256 = |_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _);
-    let p384 = |_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _);
-    p256(()).or_else(p384)
+pub fn any_ecdsa_type(
+    #[allow(unused)] der: &PrivateKeyDer<'_>,
+) -> Result<Arc<dyn SigningKey>, rustls::Error> {
+    #[allow(unused_mut)]
+    let mut result = Err(Error::General("not supported".into()));
+
+    #[cfg(feature = "p256")]
+    {
+        result = result.or_else(|_| EcdsaSigningKeyP256::try_from(der).map(|x| Arc::new(x) as _));
+    }
+
+    #[cfg(feature = "p384")]
+    {
+        result = result.or_else(|_| EcdsaSigningKeyP384::try_from(der).map(|x| Arc::new(x) as _));
+    }
+
+    result
 }
 
 /// Extract any supported EDDSA key from the given DER input.
@@ -95,9 +112,20 @@ pub fn any_ecdsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, ru
 /// # Errors
 ///
 /// Returns an error if the key couldn't be decoded.
-pub fn any_eddsa_type(der: &PrivateKeyDer<'_>) -> Result<Arc<dyn SigningKey>, rustls::Error> {
+pub fn any_eddsa_type(
+    #[allow(unused)] der: &PrivateKeyDer<'_>,
+) -> Result<Arc<dyn SigningKey>, rustls::Error> {
     // TODO: Add support for Ed448
-    Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _)
+
+    #[allow(unused_mut)]
+    let mut result = Err(Error::General("not supported".into()));
+
+    #[cfg(feature = "x25519")]
+    {
+        result = result.or_else(|_| Ed25519SigningKey::try_from(der).map(|x| Arc::new(x) as _));
+    }
+
+    result
 }
 
 pub mod ecdsa;

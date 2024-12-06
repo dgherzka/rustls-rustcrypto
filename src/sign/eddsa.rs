@@ -1,3 +1,5 @@
+#![cfg(feature = "x25519")]
+
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, format, string::ToString, sync::Arc};
 use core::marker::PhantomData;

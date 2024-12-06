@@ -1,3 +1,5 @@
+#![cfg(any(feature = "p256", feature = "p384"))]
+
 use der::Decode;
 use digest::Digest;
 use paste::paste;
@@ -48,7 +50,11 @@ macro_rules! impl_generic_ecdsa_verifer {
     };
 }
 
+#[cfg(feature = "p256")]
 impl_generic_ecdsa_verifer! {ECDSA_P256_SHA256, alg_id::ECDSA_P256, alg_id::ECDSA_SHA256, p256::ecdsa::VerifyingKey, p256::ecdsa::DerSignature, sha2::Sha256}
+#[cfg(feature = "p256")]
 impl_generic_ecdsa_verifer! {ECDSA_P256_SHA384, alg_id::ECDSA_P256, alg_id::ECDSA_SHA384, p256::ecdsa::VerifyingKey, p256::ecdsa::DerSignature, sha2::Sha384}
+#[cfg(feature = "p384")]
 impl_generic_ecdsa_verifer! {ECDSA_P384_SHA256, alg_id::ECDSA_P384, alg_id::ECDSA_SHA256, p384::ecdsa::VerifyingKey, p384::ecdsa::DerSignature, sha2::Sha256}
+#[cfg(feature = "p384")]
 impl_generic_ecdsa_verifer! {ECDSA_P384_SHA384, alg_id::ECDSA_P384, alg_id::ECDSA_SHA384, p384::ecdsa::VerifyingKey, p384::ecdsa::DerSignature, sha2::Sha384}
